@@ -1,0 +1,49 @@
+{
+  "started": "2026-11-19T18:39:09+00:00",
+  "marker": "1c48fb601a9e4511b7b157ee6d581cc1",
+  "status": "passed",
+  "kubernetes": "v1.37.2+k3s1",
+  "image": "faralpha-flask:047e55f4c281",
+  "flask_unit_tests": "passed",
+  "http": {
+    "welcome": 200,
+    "timestamp": "2026-11-19T18:39:39+00:00",
+    "insert": 201,
+    "read": 200,
+    "json_array": 400,
+    "malformed_json": 400,
+    "text_input": 415
+  },
+  "pod_checks": [
+    "flask-7dc84798fc-2xd6r | both DNS names resolve to fd00:42::26 | shared row found | anonymous read 13 | invalid password 18 | admin operation 13",
+    "flask-7dc84798fc-nwmmz | both DNS names resolve to fd00:42::26 | shared row found | anonymous read 13 | invalid password 18 | admin operation 13",
+    "flask-7dc84798fc-prftf | both DNS names resolve to fd00:42::26 | shared row found | anonymous read 13 | invalid password 18 | admin operation 13",
+    "flask-7dc84798fc-rhnnl | both DNS names resolve to fd00:42::26 | shared row found | anonymous read 13 | invalid password 18 | admin operation 13",
+    "flask-7dc84798fc-txssz | both DNS names resolve to fd00:42::26 | shared row found | anonymous read 13 | invalid password 18 | admin operation 13"
+  ],
+  "persistence": {
+    "old_pod_uid": "d2ff80b1-2cae-4494-8ea9-54a06416b767",
+    "new_pod_uid": "1c2fdf8d-be20-4361-8de8-a8073909f334",
+    "pvc_uid": "d31ff3dc-dad9-4c61-9273-5b6f512eb6b2",
+    "pv_uid": "bf83a355-c5d4-497c-80a3-252ebdbce0b0",
+    "volume": "faralpha-mongo-pv",
+    "marker_read_back": true
+  },
+  "load_job": "job.batch/flask-load-p4mc5",
+  "load": {
+    "load_started": "2026-11-19T18:42:47.490754+00:00",
+    "traffic_seconds": 180.41527311,
+    "hpa_samples": 17,
+    "requests": 25636,
+    "http_status_counts": {
+      "200": 25636
+    },
+    "actual_qps": 142.09440009200117,
+    "peak_cpu_percent": 243,
+    "peak_ready": 5,
+    "peak_desired": 5,
+    "hpa_scale_out_observed": true
+  },
+  "cooldown_ready": 2,
+  "finished": "2026-11-19T18:47:15+00:00"
+}

@@ -1,0 +1,26 @@
+{
+  "job": "job.batch/flask-load-xsd8q",
+  "traffic_started_utc": "2026-11-19T19:06:57.295051+00:00",
+  "traffic_ended_utc": "2026-11-19T19:09:57.591165+00:00",
+  "actual_qps": 143.92434425874865,
+  "http_status_counts": {
+    "200": 25949
+  },
+  "source": "Live kubectl terminal window captured separately from the full verification run.",
+  "observations": {
+    "under-load": {
+      "timestamp_utc": "2026-11-19T19:09:00+00:00",
+      "cpu_percent": 218,
+      "hpa_current": 5,
+      "deployment_ready": 5,
+      "deployment_desired": 5
+    },
+    "cooldown": {
+      "timestamp_utc": "2026-11-19T19:11:34+00:00",
+      "cpu_percent": 6,
+      "hpa_current": 2,
+      "deployment_ready": 2,
+      "deployment_desired": 2
+    }
+  }
+}

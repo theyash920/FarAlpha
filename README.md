@@ -79,7 +79,35 @@ The PV uses `Retain`. A MongoDB pod replacement preserves the claim and bytes. S
 
 ## Tests and results
 
-The preparation run passed **19 offline tests** covering 10 manifest checks, 3 database initialization cases with a recording database object, and 6 verifier cases with synthetic metrics and HTTP counts. Python, Bash and JavaScript syntax checks passed. Docker, Minikube, kubectl and MongoDB were unavailable, and the package index could not supply the Flask dependencies here. The live Flask, MongoDB and HPA run is pending. [Recorded test output](evidence/workspace-checks.txt)
+### Measured HPA results
+
+Flask scaled from **two Ready pods to five under load**, then returned to **two Ready pods** after traffic stopped. The end-to-end run used local K3s `v1.37.2+k3s1` on 19 November 2026 UTC. Fortio targeted 1,200 requests/s against `GET /` with 32 concurrent clients. It recorded **25,636 HTTP 200 responses and zero failures** in 180.4 seconds, averaging **142.1 requests/s**. [Fortio report](evidence/run-20261119T183909Z-1c48fb/fortio.json)
+
+| Observation | Time (UTC) | Average CPU as % of request | HPA desired | Flask pods Ready |
+| --- | --- | ---: | ---: | ---: |
+| Before traffic | 18:42:41 | 7% | 2 | 2 |
+| First scale-out request | 18:43:16 | 104% | 3 | 2 |
+| Peak CPU | 18:43:29 | 243% | 5 | 2 |
+| Five pods Ready | 18:44:15 | 203% | 5 | 5 |
+| After cooldown | 18:47:14 | 5% | 2 | 2 |
+
+The HPA used a **70% target** against the **200m CPU request per pod**. At peak CPU, the controller had already requested five replicas and two were Ready. All five were Ready by 18:44:15 UTC. [HPA samples](evidence/run-20261119T183909Z-1c48fb/hpa.csv) · [CPU and replica timeline](evidence/run-20261119T183909Z-1c48fb/hpa-timeline.png)
+
+### Live HPA screenshots
+
+A repeat of the same Fortio Job produced the terminal captures below. It served **25,949 requests**, all HTTP 200. [Screenshot run record](evidence/hpa-screenshots/results.json)
+
+**Under load, 19:09:00 UTC.** `kubectl` reported **218% CPU** against the 70% target, with **5/5 Flask pods Ready**. [Command output](evidence/hpa-screenshots/under-load.txt)
+
+![Live kubectl output showing 218% CPU and five of five Flask pods Ready during load](evidence/hpa-screenshots/under-load.png)
+
+**After cooldown, 19:11:34 UTC.** CPU dropped to **6%** and both the HPA and Deployment showed **two replicas**, with **2/2 Ready**. [Command output](evidence/hpa-screenshots/cooldown.txt)
+
+![Live kubectl output showing 6% CPU and two of two Flask pods Ready after cooldown](evidence/hpa-screenshots/cooldown.png)
+
+The end-to-end run also verified HTTP 201 on insert, HTTP 200 on retrieval, the same record on all 5 tested Flask pods, and recovery of that record after MongoDB pod replacement. The development suites passed **32 automated checks**. [End-to-end summary](evidence/run-20261119T183909Z-1c48fb/summary.json) · [Automated test output](evidence/workspace-checks.txt)
+
+### Reproduce the checks
 
 The live verifier runs the Flask unit suite inside the built image, then performs the following checks on the `faralpha` cluster.
 

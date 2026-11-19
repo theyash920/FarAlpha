@@ -1,0 +1,17 @@
+2026-11-19 19:09:00 UTC
+
+$ kubectl -n faralpha get hpa flask
+NAME    REFERENCE          TARGETS         MINPODS   MAXPODS   REPLICAS   AGE
+flask   Deployment/flask   cpu: 218%/70%   2         5         5          56m
+
+$ kubectl -n faralpha get deployment flask
+NAME    READY   UP-TO-DATE   AVAILABLE   AGE
+flask   5/5     5            5           56m
+
+$ kubectl -n faralpha get pods -l app=flask
+NAME                     READY   STATUS    RESTARTS        AGE
+flask-7dc84798fc-2xd6r   1/1     Running   2 (4m46s ago)   36m
+flask-7dc84798fc-4lxxw   1/1     Running   0               98s
+flask-7dc84798fc-nwmmz   1/1     Running   2 (4m46s ago)   50m
+flask-7dc84798fc-vgt9w   1/1     Running   0               82s
+flask-7dc84798fc-wsmq2   1/1     Running   0               98s
