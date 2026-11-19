@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask
+  namespace: faralpha
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: flask
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: {maxSurge: 1, maxUnavailable: 0}
+  template:
+    metadata:
+      labels:
+        app: flask
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: flask
+          image: faralpha-flask:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 5000
+          env:
+            - name: MONGODB_URI
+              value: mongodb://mongodb:27017/
+            - name: MONGO_APP_USERNAME
+              valueFrom:
+                secretKeyRef: {name: mongodb-credentials, key: app-username}
+            - name: MONGO_APP_PASSWORD
+              valueFrom:
+                secretKeyRef: {name: mongodb-credentials, key: app-password}
+          resources:
+            requests: {cpu: 200m, memory: 250M}
+            limits: {cpu: 500m, memory: 500M}
+          startupProbe:
+            httpGet: {path: /livez, port: http}
+            periodSeconds: 3
+            failureThreshold: 30
+          livenessProbe:
+            httpGet: {path: /livez, port: http}
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 4
+          readinessProbe:
+            httpGet: {path: /readyz, port: http}
+            periodSeconds: 5
+            timeoutSeconds: 4
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL]}
+          volumeMounts:
+            - {name: tmp, mountPath: /tmp}
+      volumes:
+        - name: tmp
+          emptyDir: {sizeLimit: 16Mi}

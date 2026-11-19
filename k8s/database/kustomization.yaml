@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: faralpha
+resources:
+  - storage.yaml
+  - mongodb.yaml
+configMapGenerator:
+  - name: mongodb-init
+    files:
+      - 10-app-user.js=init-app-user.js

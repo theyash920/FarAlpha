@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  generateName: flask-load-
+  namespace: faralpha
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 360
+  ttlSecondsAfterFinished: 900
+  template:
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      containers:
+        - name: fortio
+          image: fortio/fortio:1.76.0
+          args:
+            - load
+            - -qps
+            - "1200"
+            - -c
+            - "32"
+            - -t
+            - 180s
+            - -timeout
+            - 3s
+            - -keepalive=false
+            - -json
+            - "-"
+            - http://flask/
+          resources:
+            requests: {cpu: 100m, memory: 32Mi}
+            limits: {cpu: "1", memory: 128Mi}

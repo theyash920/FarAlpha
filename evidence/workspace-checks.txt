@@ -1,0 +1,89 @@
+Faralpha assignment | Preparation environment verification
+Recorded 2026-11-19T17:37:15+00:00
+Linux x86_64 | Python 3.12.14 | PyYAML 6.0.3 | Node v24.22.3
+
+19 offline tests passed. The test groups below exercise manifest contracts, the
+database-user bootstrap with a recording object, and the evidence verifier with
+synthetic HPA and load results. The synthetic values are unit-test inputs.
+The live API, MongoDB, persistence and HPA scenarios require a running cluster.
+
+Manifest checks | python3 tests/test_manifests.py
+test_cpu_and_decimal_memory_quantities (__main__.ManifestContracts.test_cpu_and_decimal_memory_quantities) ... ok
+test_database_init_configmap_and_mount (__main__.ManifestContracts.test_database_init_configmap_and_mount) ... ok
+test_health_probes (__main__.ManifestContracts.test_health_probes) ... ok
+test_hpa_range_and_target (__main__.ManifestContracts.test_hpa_range_and_target) ... ok
+test_load_is_bounded_and_internal (__main__.ManifestContracts.test_load_is_bounded_and_internal) ... ok
+test_mongo_dns_and_auth_wiring (__main__.ManifestContracts.test_mongo_dns_and_auth_wiring) ... ok
+test_namespace (__main__.ManifestContracts.test_namespace) ... ok
+test_retained_pv_is_bound_to_the_claim_and_database_path (__main__.ManifestContracts.test_retained_pv_is_bound_to_the_claim_and_database_path) ... ok
+test_secret_keys_and_root_isolation (__main__.ManifestContracts.test_secret_keys_and_root_isolation) ... ok
+test_service_selectors_and_named_ports (__main__.ManifestContracts.test_service_selectors_and_named_ports) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.013s
+
+OK
+
+MongoDB bootstrap logic | node --test tests/test_init.js
+✔ creates one readWrite user scoped to flask_db (2.453512ms)
+✔ requires a username (1.145619ms)
+✔ requires a password (0.899096ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 104.043863
+
+Verifier behavior | python3 tests/test_verifier.py
+test_desired_only_is_insufficient (__main__.EvidenceChecks.test_desired_only_is_insufficient) ... ok
+test_excess_replica_demand_fails (__main__.EvidenceChecks.test_excess_replica_demand_fails) ... ok
+test_http_failures_fail_the_run (__main__.EvidenceChecks.test_http_failures_fail_the_run) ... ok
+test_missing_load_report_fails (__main__.EvidenceChecks.test_missing_load_report_fails) ... ok
+test_no_scale_out_fails (__main__.EvidenceChecks.test_no_scale_out_fails) ... ok
+test_scale_out_then_return_to_two (__main__.EvidenceChecks.test_scale_out_then_return_to_two) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.004s
+
+OK
+
+Additional project and HTTP-client checks
+PASS Python parse app.py
+PASS Python parse scripts/verify.py
+PASS Python parse tests/pod_check.py
+PASS Python parse tests/test_app.py
+PASS Python parse tests/test_manifests.py
+PASS Python parse tests/test_verifier.py
+PASS deployment shell and both JavaScript source files parsed
+PASS 7 README shell blocks parsed
+PASS original four-page assignment PDF is byte-identical
+PASS Docker copy inputs, exec-form startup and Flask factory reference
+PASS host-side HTTP verification client against a loopback HTTP fixture (no Flask or MongoDB runtime)
+
+Deployment script rehearsal | local command doubles for Docker, Minikube and kubectl
+PASS first deployment rendered distinct 256-bit passwords and selected a content-tagged image
+PASS redeployment reused the Secret
+PASS explicit registry reference skipped the local build and reached the Deployment
+PASS retained initialized disk with a missing Secret stopped before credential generation
+
+Live execution attempt
+Deploy script preflight: Install docker before starting the faralpha Minikube profile.
+Verifier preflight: [Errno 2] No such file or directory: 'kubectl'
+Runtime package installation: pip could not obtain Flask 3.1.3 in this environment.
+A direct request to the package index timed out. The container image was not built.
+No live HTTP status, MongoDB authorization outcome, HPA sample or measured QPS was obtained here.
+
+Reproduce the offline suites
+The manifest tests need PyYAML. The verifier tests use the Python standard library.
+The initialization tests use Node's built-in test runner.
+  python3 tests/test_manifests.py
+  python3 tests/test_verifier.py
+  node --test tests/test_init.js
+
+Capture cluster observations on a Docker-enabled machine
+  bash scripts/deploy.sh
+  python3 scripts/verify.py
+The verifier stores summary.json, HPA samples and raw load output under evidence/run-*/.
